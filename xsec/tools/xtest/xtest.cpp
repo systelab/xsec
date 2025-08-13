@@ -2721,7 +2721,7 @@ int main(int argc, char **argv) {
 
 		cerr << "Error during initialisation of Xerces" << endl;
 		cerr << "Error Message = : "
-		     << e.getMessage() << endl;
+		     << XMLString::transcode(e.getMessage()) << endl;
 
 	}
 
