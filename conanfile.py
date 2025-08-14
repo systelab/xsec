@@ -26,6 +26,9 @@ class XsecConan(ConanFile):
 		self.copy("xsec_lib.dll", dst="bin", src=("Build/Win32/VC%s/%s Minimal" % (self.settings.compiler.version, self.settings.build_type)))
 		self.copy("xsec_lib.pdb", dst="bin", src=("Build/Win32/VC%s/%s Minimal" % (self.settings.compiler.version, self.settings.build_type)))
 
+	def imports(self):
+		self.copy("*.dll", dst="../../../../../../Build/Win32/VC%s/%s Minimal" % (self.settings.compiler.version, self.settings.build_type), src="bin")
+
 	def package_info(self):
 		self.cpp_info.libs = tools.collect_libs(self)
 		self.cpp_info.bindirs = ['bin']
