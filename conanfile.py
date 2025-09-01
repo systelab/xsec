@@ -13,8 +13,8 @@ class XsecConan(ConanFile):
 
 	def requirements(self):
 		self.requires("zlib/1.3.1@#f52e03ae3d251dec704634230cd806a2", override = True)
-		self.requires("openssl/3.0.15@#05e3fb00d6d340c1c241a7347f0a9ec9")
-		self.requires("xerces-c/3.2.5#eaa4f49d6f4fa9351c8b706957ef0a99")
+		self.requires("openssl/3.0.16@#c4f4f2909b2327e1e8abec3748c1023f")
+		self.requires("xerces-c/3.3.0#1460e1dcbd206b18a0ecf29f0b5ee361")
 
 	def config_options(self):
 		self.options["xerces-c"].char_type = self.options.xerces_char_type
