@@ -1,34 +1,50 @@
-from conans import ConanFile, tools
-
+from conan import ConanFile
+from conan.tools.files import copy, collect_libs
+from conan.tools.microsoft import MSBuildDeps, MSBuildToolchain
+import os
 
 class XsecConan(ConanFile):
-	name = "xsec"
-	description = "C++ cryptography library"
-	author = "CSW <csw@werfen.com>"
-	topics = ("conan", "crypto", "key")
-	generators = "visual_studio"
-	settings = "os", "compiler", "build_type", "arch"
-	options = {"xerces_char_type" : ['uint16_t', 'wchar_t']}
-	default_options = "openssl:shared=True", "xerces-c:shared=True", "xerces_char_type=uint16_t"
+    name = "xsec"
+    description = "C++ cryptography library"
+    author = "CSW <csw@werfen.com>"
+    topics = ("conan", "crypto", "key")
+    settings = "os", "compiler", "build_type", "arch"
+    options = {"xerces_char_type" : ["uint16_t", "wchar_t"]}
+    default_options = {"openssl/*:shared": True, "xerces-c/*:shared": True, "xerces_char_type": "uint16_t"}
 
-	def requirements(self):
-		self.requires("zlib/1.3.1@#f52e03ae3d251dec704634230cd806a2", override = True)
-		self.requires("openssl/3.0.16@#c4f4f2909b2327e1e8abec3748c1023f")
-		self.requires("xerces-c/3.3.0#1460e1dcbd206b18a0ecf29f0b5ee361")
+    exports_sources = (
+        "xsec/*",
+        "Projects/*"
+    )
 
-	def config_options(self):
-		self.options["xerces-c"].char_type = self.options.xerces_char_type
+    def requirements(self):
+        self.requires("zlib/1.3.1", override = True)
+        self.requires("openssl/3.0.16")
+        self.requires("xerces-c/3.3.0")
 
-	def package(self):
-		self.copy("*.hpp", dst="include/xsec", src="xsec")
-		self.copy("*.h", dst="include/xsec", src="xsec")
-		self.copy("xsec_lib.lib", dst="lib", src=("Build/Win32/VC%s/%s Minimal" % (self.settings.compiler.version, self.settings.build_type)))
-		self.copy("xsec_lib.dll", dst="bin", src=("Build/Win32/VC%s/%s Minimal" % (self.settings.compiler.version, self.settings.build_type)))
-		self.copy("xsec_lib.pdb", dst="bin", src=("Build/Win32/VC%s/%s Minimal" % (self.settings.compiler.version, self.settings.build_type)))
+    def config_options(self):
+        self.options["xerces-c"].char_type = self.options.xerces_char_type
 
-	def imports(self):
-		self.copy("*.dll", dst="../../../../../../Build/Win32/VC%s/%s Minimal" % (self.settings.compiler.version, self.settings.build_type), src="bin")
+    def generate(self):
+        msbuild_deps = MSBuildDeps(self)
+        msbuild_deps.generate()
 
-	def package_info(self):
-		self.cpp_info.libs = tools.collect_libs(self)
-		self.cpp_info.bindirs = ['bin']
+        msbuild_tc = MSBuildToolchain(self)
+        msbuild_tc.generate()
+
+    def package(self):
+        copy(self, "*.hpp", dst=os.path.join(self.package_folder, "include", "xsec"), src=os.path.join(self.source_folder, "xsec"))
+        copy(self, "*.h", dst=os.path.join(self.package_folder, "include", "xsec"), src=os.path.join(self.source_folder, "xsec"))
+
+        source = os.path.join(self.source_folder, "Build", "Win32", f"VC{str(self.settings.compiler.version)}", f"{str(self.settings.build_type)} Minimal")
+
+        copy(self, "xsec_lib.lib", dst=os.path.join(self.package_folder, "lib"), src=source)
+        copy(self, "xsec_lib.dll", dst=os.path.join(self.package_folder, "bin"), src=source)
+        copy(self, "xsec_lib.pdb", dst=os.path.join(self.package_folder, "bin"), src=source)
+
+    def imports(self):
+        copy(self, "*.dll", dst=os.path.join(self.build_folder, "bin"), src="bin")
+
+    def package_info(self):
+        self.cpp_info.libs = collect_libs(self)
+        self.cpp_info.bindirs = ['bin']
