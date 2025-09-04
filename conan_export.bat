@@ -1,2 +1,2 @@
-conan export-pkg . --name=xsec --version=2.1.0 --profile:build=.conanprofile -s build_type=Debug -s arch=x86
-conan export-pkg . --name=xsec --version=2.1.0 --profile:build=.conanprofile -s build_type=Release -s arch=x86
+conan export-pkg . --name=xsec --version=2.1.0 --profile:host=.conanprofile -s build_type=Debug -of int
+conan export-pkg . --name=xsec --version=2.1.0 --profile:host=.conanprofile -s build_type=Release -of int
