@@ -32,11 +32,22 @@ class XsecConan(ConanFile):
         msbuild_tc = MSBuildToolchain(self)
         msbuild_tc.generate()
 
+    def normalize_msvc_version(self, version):
+        mapping = {
+            "194": "17",
+            "193": "16",
+            "192": "15",
+        }
+
+        return mapping.get(str(version), version)
+    
     def package(self):
         copy(self, "*.hpp", dst=os.path.join(self.package_folder, "include", "xsec"), src=os.path.join(self.source_folder, "xsec"))
         copy(self, "*.h", dst=os.path.join(self.package_folder, "include", "xsec"), src=os.path.join(self.source_folder, "xsec"))
 
-        source = os.path.join(self.source_folder, "Build", "Win32", f"VC{str(self.settings.compiler.version)}", f"{str(self.settings.build_type)} Minimal")
+        normalized_version = self.normalize_msvc_version(self.settings.compiler.version)
+
+        source = os.path.join(self.source_folder, "Build", "Win32", f"VC{str(normalized_version)}", f"{str(self.settings.build_type)} Minimal")
 
         copy(self, "xsec_lib.lib", dst=os.path.join(self.package_folder, "lib"), src=source)
         copy(self, "xsec_lib.dll", dst=os.path.join(self.package_folder, "bin"), src=source)
