@@ -26,11 +26,24 @@ class XsecConan(ConanFile):
         self.options["xerces-c"].char_type = self.options.xerces_char_type
 
     def generate(self):
+        # Map Conan build_type to MSBuild configuration names
+        config_map = {
+            "Debug": "Debug Minimal",
+            "Release": "Release Minimal"
+        }
+        
+        msbuild_config = config_map.get(str(self.settings.build_type), str(self.settings.build_type))
+        
+        # Generate MSBuildDeps with the custom configuration name
         msbuild_deps = MSBuildDeps(self)
+        msbuild_deps.configuration = msbuild_config
         msbuild_deps.generate()
 
+        # Generate MSBuildToolchain with the custom configuration name
         msbuild_tc = MSBuildToolchain(self)
+        msbuild_tc.properties["Configuration"] = msbuild_config
         msbuild_tc.generate()
+    
 
     def normalize_msvc_version(self, version):
         mapping = {
