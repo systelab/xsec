@@ -66,9 +66,6 @@ class XsecConan(ConanFile):
         copy(self, "xsec_lib.dll", dst=os.path.join(self.package_folder, "bin"), src=source)
         copy(self, "xsec_lib.pdb", dst=os.path.join(self.package_folder, "bin"), src=source)
 
-    def imports(self):
-        copy(self, "*.dll", dst=os.path.join(self.build_folder, "bin"), src="bin")
-
     def package_info(self):
         self.cpp_info.libs = collect_libs(self)
         self.cpp_info.bindirs = ['bin']
